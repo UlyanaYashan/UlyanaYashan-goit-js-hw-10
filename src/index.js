@@ -1,5 +1,5 @@
-// const axios = require('axios/dist/node/axios.cjs');
-// const axios = require('axios');
+
+const axios = require('axios');
 
 import Notiflix from 'notiflix';
 
@@ -8,37 +8,70 @@ import { fetchImages } from './api/fetchImages';
 const form = document.querySelector('#search-form')
 const input = document.querySelector('input[name="searchQuery"]');
 const divGallery = document.querySelector('.gallery');
-
+const loadMore = document.querySelector('.load-more');
+loadMore.style.display = 'none';
+let page = 0;
+let perPage= 40;
 
 form.addEventListener('submit', onSearh);
 
-function onSearh (e) {
+async function onSearh (e) {
     e.preventDefault();
     const q = input.value.trim();
+    console.log(q);
+    page = 1;
 
-    if (q === '') {
-        return (divGallery.innerHTML = '');
+
+
+    if (!q) {
+             return (divGallery.innerHTML = ''),       loadMore.style.display = 'none';
+       
+             
       }
     // console.log(input.value);
-fetchImages(q).then(q => {
+fetchImages(q, page, perPage).then(q => {
 console.log(q);
-// divGallery.innerHTML = ''
-divGallery.insertAdjacentHTML('beforeend', createImageList(q))
-})
-.catch(error)
-      .finally(()  => {
-        console.log(input.value);
-        input.value = '';
-        }
-            )
+divGallery.innerHTML = ''
+loadMore.style.display = 'block';
+if (q.data.total === 0){
+   Notiflix.Notify.info("Sorry, there are no images matching your search query. Please try again.");
+  divGallery.innerHTML = ''
 }
+
+divGallery.insertAdjacentHTML('beforeend', createImageList(q));
+})
+.catch()
+}
+
+
+loadMore.addEventListener('click', onLoadMore);
+
+function onLoadMore(e) {
+  e.preventDefault();
+  const q = input.value.trim();
+  page += 1;
+
+  fetchImages(q, page, perPage).then(q => {
+  
+    divGallery.insertAdjacentHTML('beforeend', createImageList(q));
+
+    let totalPages = q.data.totalHits / perPage;
+    if (page >= totalPages) {
+      loadMore.style.display = 'none';
+      Notiflix.Notify.info(
+        "We're sorry, but you've reached the end of search results."
+      )
+      }
+    })
+    .catch()
+    }
 
 
 
 
 
 function createImageList(image) {
- const markup = image.hits
+ const markup = image.data.hits
  .map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => {
     return `
     <a class="gallery__link" href="${largeImageURL}">
