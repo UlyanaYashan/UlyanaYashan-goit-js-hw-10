@@ -4,6 +4,9 @@ const axios = require('axios');
 import Notiflix from 'notiflix';
 
 import { fetchImages } from './api/fetchImages';
+import SimpleLightbox from "simplelightbox";
+
+import "simplelightbox/dist/simple-lightbox.min.css";
 
 const form = document.querySelector('#search-form')
 const input = document.querySelector('input[name="searchQuery"]');
@@ -18,19 +21,16 @@ form.addEventListener('submit', onSearh);
 async function onSearh (e) {
     e.preventDefault();
     const q = input.value.trim();
-    console.log(q);
+    // console.log(q);
     page = 1;
 
-
-
     if (!q) {
-             return (divGallery.innerHTML = ''),       loadMore.style.display = 'none';
-       
-             
+             return (divGallery.innerHTML = ''),       loadMore.style.display = 'none'
       }
     // console.log(input.value);
+
 fetchImages(q, page, perPage).then(q => {
-console.log(q);
+// console.log(q);
 divGallery.innerHTML = ''
 loadMore.style.display = 'block';
 if (q.data.total === 0){
@@ -38,7 +38,8 @@ if (q.data.total === 0){
   divGallery.innerHTML = ''
 }
 
-divGallery.insertAdjacentHTML('beforeend', createImageList(q));
+divGallery.insertAdjacentHTML('beforeend', createImageList(q))
+lightbox.refresh();;
 })
 .catch()
 }
@@ -54,7 +55,7 @@ function onLoadMore(e) {
   fetchImages(q, page, perPage).then(q => {
   
     divGallery.insertAdjacentHTML('beforeend', createImageList(q));
-
+    lightbox.refresh();
     let totalPages = q.data.totalHits / perPage;
     if (page >= totalPages) {
       loadMore.style.display = 'none';
@@ -63,35 +64,43 @@ function onLoadMore(e) {
       )
       }
     })
-    .catch()
+    .catch(onFetchError)
     }
-
-
-
 
 
 function createImageList(image) {
  const markup = image.data.hits
  .map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => {
     return `
-    <a class="gallery__link" href="${largeImageURL}">
-    <div class="photo-card">
+   
+    <div style="display:flex; flex-wrap: wrap; flex-direction: column"  class="photo-card">
+    <a href="${largeImageURL}">
   <img src="${webformatURL}" alt="${tags}" width = 209px loading="lazy" />
-  <div class="info">
-  <p class="info-item"><b>Likes</b>${likes}</p>
-  <p class="info-item"><b>Views</b>${views}</p>
-  <p class="info-item"><b>Comments</b>${comments}</p>
-  <p class="info-item"><b>Downloads</b>${downloads}</p>
+  </a>
+  
+  <div class="info" style="display:flex; gap: 7% "
+  >
+  <p class="info-item" style = 'font-size: 9px; display:flex; flex-direction: column; align-items:center'><b>Likes</b>${likes}</p>
+  <p class="info-item" style = 'font-size: 9px; display:flex; flex-direction: column; align-items:center'><b>Views</b>${views}</p>
+  <p class="info-item" style = 'font-size: 9px; display:flex; flex-direction: column; align-items:center'><b>Comments</b>${comments}</p>
+  <p class="info-item" style = 'font-size: 9px; display:flex; flex-direction: column; align-items:center'><b>Downloads</b>${downloads}</p>
   </div>
 </div>
-</a>
   `;
 })
 .join('');
 
-return markup;
+return markup; 
+ 
 }
+
+var lightbox = new SimpleLightbox('.gallery a', {captionsData: 'alt', 
+captionPosition:'bottom', captionDelay: 250, animationSlide: true });
 
 function onFetchError () {
     Notiflix.Notify.failure('error');
 }
+
+divGallery.style.display = 'flex';
+divGallery.style.gap = '10%';
+divGallery.style.flexWrap = 'wrap';
