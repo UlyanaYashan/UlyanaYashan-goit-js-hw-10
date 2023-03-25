@@ -36,6 +36,7 @@ loadMore.style.display = 'block';
 if (q.data.total === 0){
    Notiflix.Notify.info("Sorry, there are no images matching your search query. Please try again.");
   divGallery.innerHTML = ''
+  loadMore.style.display = 'none'
 }
 
 divGallery.insertAdjacentHTML('beforeend', createImageList(q))
