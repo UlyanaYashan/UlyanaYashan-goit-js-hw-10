@@ -1,4 +1,3 @@
-
 const axios = require('axios');
 
 import Notiflix from 'notiflix';
@@ -33,11 +32,11 @@ async function onSearh (e) {
   try {
       page = 1;
       let result = await fetchImages(q, page, perPage);
-      console.log(result);
+      // console.log(result);
       divGallery.innerHTML = ''
 
 let totalPages = result.data.totalHits / perPage;
-console.log(totalPages);
+// console.log(totalPages);
 loadMore.style.display = 'none';
 
 if (page < totalPages) {
@@ -48,19 +47,15 @@ if (page < totalPages) {
        divGallery.innerHTML = ''
        loadMore.style.display = 'none'
        }
- else {
-          divGallery.insertAdjacentHTML('beforeend', createImageList(result))
-         lightbox.refresh();
-      };
+
+     divGallery.insertAdjacentHTML('beforeend', createImageList(result))
+    lightbox.refresh();
+  
   } catch (error) {
       onFetchError();
   };
 };
  
-
-
-
-
 
 loadMore.addEventListener('click', onLoadMore);
 
@@ -71,7 +66,7 @@ async function onLoadMore(e) {
   page += 1;
 try {
   let result = await fetchImages(q, page, perPage);
-  console.log(result);
+  // console.log(result);
   divGallery.insertAdjacentHTML('beforeend', createImageList(result));
   lightbox.refresh();
   let totalPages = result.data.totalHits / perPage;
@@ -86,24 +81,6 @@ try {
     onFetchError();
      }
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // async function onSearh (e) {
